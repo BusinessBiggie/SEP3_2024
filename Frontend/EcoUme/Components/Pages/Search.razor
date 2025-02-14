@@ -1,0 +1,266 @@
+@page "/"
+@using DTOs
+@inject HttpClient Http
+
+<!-- Include the CSS -->
+<link rel="stylesheet" href="css/search.css">
+
+<div class="page-container">
+    <!-- Search bar at the top -->
+    <div class="search-bar">
+        <input type="text" placeholder="Search for a product..." @bind="searchTerm" />
+    </div>
+
+    <!-- Filter dropdowns for category and condition -->
+    <div class="filters">
+        <select @bind="selectedCategory">
+            <option value="">Category</option>
+            @foreach (var category in categories)
+            {
+                <option value="@category">@category</option>
+            }
+        </select>
+
+        <select @bind="selectedCondition">
+            <option value="">Condition</option>
+            @foreach (var condition in conditions)
+            {
+                <option value="@condition">@condition</option>
+            }
+        </select>
+    </div>
+
+    <!-- Sorting and search button -->
+    <div class="sorting">
+        <select @bind="sortBy">
+            <option value="">Sort By</option>
+            <option value="price">Price</option>
+            <option value="name">Name</option>
+        </select>
+
+        <label>
+            <input type="checkbox" @bind="ascending" />
+            Ascending Order
+        </label>
+
+        <button class="search-button" @onclick="SearchListings">Search</button>
+    </div>
+
+    <!-- Products listing -->
+    <div class="products-container">
+        @if (isLoading)
+        {
+            <p>Loading...</p>
+        }
+        else if (listings == null || !listings.Any())
+        {
+            <p>No products found.</p>
+        }
+        else
+        {
+            @foreach (var listing in listings)
+            {
+                var imageUrl = $"http://localhost:7202{listing.ImageUrl}";
+                <a href="/product-detail/@listing.ListingID" class="product-card-link">
+                    <div class="product-card">
+                        @if (!string.IsNullOrEmpty(listing.ImageUrl) && GetImage(imageUrl, out var image))
+                        {
+                            <img src="@image" alt="Product Image" class="card-img-top" />
+                        }
+                        else
+                        {
+                            <div class="card-img-top d-flex align-items-center justify-content-center"
+                                 style="height: 150px; background-color: #f8f9fa;">
+                                <span>No Image</span>
+                            </div>
+                        }
+                        <!--<img src="@imageUrl" alt="Product image"/>-->
+                        <div class="title">@listing.ProductName</div>
+                        <div class="price">DKK @listing.Price</div>
+                    </div>
+                </a>
+            }
+        }
+    </div>
+
+    <!-- Pagination controls -->
+    <div class="pagination-controls">
+        @if (!isLoading && totalPages > 1)
+        {
+            <button @onclick="PreviousPage" disabled="@(!HasPreviousPage)">Previous</button>
+            <span>Page @currentPage of @totalPages</span>
+            <button @onclick="NextPage" disabled="@(!HasNextPage)">Next</button>
+        }
+    </div>
+</div>
+
+@code {
+    private string searchTerm = string.Empty;
+    private string selectedCategory = string.Empty;
+    private string selectedCondition = string.Empty;
+    private string sortBy = string.Empty;
+    private bool ascending = true;
+    private bool isLoading = false;
+
+    private bool isSearchMode = false; // Tracks whether we are in search mode
+    private List<ListingDto> listings = new();
+    private List<string> categories = new(); // Dynamic categories
+    private List<string> conditions = new(); // Dynamic conditions
+
+    private int currentPage = 1;
+    private int totalPages = 1;
+    private const int pageSize = 10;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch categories and conditions from the API
+        await LoadEnumValues();
+
+        // Fetch all listings on page load
+        await LoadAllListings();
+    }
+    
+    private async Task LoadEnumValues()
+    {
+        try
+        {
+            // Fetch categories
+            Console.WriteLine("Fetching categories...");
+            var categoryResponse = await Http.GetFromJsonAsync<List<EnumResponseDTO>>("http://localhost:7202/api/listings/product-categories");
+            if (categoryResponse != null)
+            {
+                categories = categoryResponse.Select(c => c.Name).ToList();
+                Console.WriteLine($"Loaded categories: {string.Join(", ", categories)}");
+            }
+
+            // Fetch conditions
+            Console.WriteLine("Fetching conditions...");
+            var conditionResponse = await Http.GetFromJsonAsync<List<EnumResponseDTO>>("http://localhost:7202/api/listings/product-conditions");
+            if (conditionResponse != null)
+            {
+                conditions = conditionResponse.Select(c => c.Name).ToList();
+                Console.WriteLine($"Loaded conditions: {string.Join(", ", conditions)}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading enum values: {ex.Message}");
+        }
+    }
+
+    private async Task LoadAllListings()
+    {
+        isLoading = true;
+        try
+        {
+            isSearchMode = false; // Ensure we're not in search mode
+            var response = await Http.GetFromJsonAsync<PaginatedResponse<List<ListingDto>>>(
+                $"http://localhost:7202/api/listings/all?page={currentPage}&pageSize={pageSize}");
+            if (response != null)
+            {
+                listings = response.Items ?? new List<ListingDto>();
+                totalPages = response.TotalPages;
+                currentPage = response.CurrentPage;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching all listings: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task SearchListings()
+    {
+        isLoading = true;
+        try
+        {
+            isSearchMode = true; // Switch to search mode
+            currentPage = 1; // Reset to the first page for a new search
+
+            await FetchSearchResults();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching search results: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task FetchSearchResults()
+    {
+        var queryParams = new Dictionary<string, string>
+        {
+            { "name", searchTerm },
+            { "category", selectedCategory },
+            { "condition", selectedCondition },
+            { "sortBy", sortBy },
+            { "ascending", ascending.ToString().ToLower() },
+            { "page", currentPage.ToString() },
+            { "pageSize", pageSize.ToString() }
+        };
+
+        var queryString = string.Join("&", queryParams.Where(kvp => !string.IsNullOrEmpty(kvp.Value)).Select(kvp => $"{kvp.Key}={kvp.Value}"));
+
+        var response = await Http.GetFromJsonAsync<PaginatedResponse<List<ListingDto>>>(
+            $"http://localhost:7202/api/listings/search-and-filter?{queryString}");
+        if (response != null)
+        {
+            listings = response.Items ?? new List<ListingDto>();
+            totalPages = response.TotalPages;
+            currentPage = response.CurrentPage;
+        }
+    }
+    
+    private bool GetImage(string fileUrl, out string image)
+    {
+        using var client = new HttpClient();
+
+        try
+        {
+            // Run the async method synchronously
+            var imageBytes = client.GetByteArrayAsync(fileUrl).GetAwaiter().GetResult();
+            image = $"data:image/jpeg;base64,{Convert.ToBase64String(imageBytes)}";
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load image: {ex.Message}");
+            image = string.Empty;
+            return false;
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (currentPage < totalPages)
+        {
+            currentPage++;
+            if (isSearchMode)
+                await FetchSearchResults(); // Fetch the next page of search results
+            else
+                await LoadAllListings(); // Fetch the next page of all listings
+        }
+    }
+
+    private async Task PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            if (isSearchMode)
+                await FetchSearchResults(); // Fetch the previous page of search results
+            else
+                await LoadAllListings(); // Fetch the previous page of all listings
+        }
+    }
+
+    private bool HasPreviousPage => currentPage > 1;
+    private bool HasNextPage => currentPage < totalPages;
+}

@@ -1,0 +1,270 @@
+@page "/listings/manage"
+@using DTOs
+@using EcoUme.Services
+@inject IListingsService ListingService
+@inject IConfiguration Configuration
+@inject NavigationManager NavigationManager
+@inject TokenStorageService TokenStorageService
+
+<h1 class="mb-3">Manage Listings</h1>
+
+@if (!IsLoggedIn)
+{
+    <div class="alert alert-warning">
+        <p>You need to log in to manage your listings.
+           <a @onclick="NavigateToLogin" style="cursor: pointer; text-decoration: underline;">Click here to log in</a>.
+        </p>
+    </div>
+}
+else
+{
+    <!-- Button Section -->
+    <div class="button-container mb-4">
+        <div>
+            <button class="btn btn-primary me-2" @onclick="ShowCreateListingModal">Create New Listing</button>
+        </div>
+    </div>
+
+    @if (Listings == null || Listings.Count == 0)
+    {
+        <div class="alert alert-info">No listings available.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var listing in Listings)
+            {
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        <!-- Display Listing Image -->
+                        @if (!string.IsNullOrEmpty(listing.ImageUrl) && AuthorizedImageUrls.TryGetValue(listing.ListingID, out var imageUrl))
+                        {
+                            <img src="@imageUrl" alt="Product Image" class="card-img-top" />
+                        }
+                        else
+                        {
+                            <div class="card-img-top d-flex align-items-center justify-content-center" 
+                                 style="height: 150px; background-color: #f8f9fa;">
+                                <span>No Image</span>
+                            </div>
+                        }
+
+                        <!-- Display Listing Details -->
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@listing.ProductName</h5>
+                            <p class="card-text">
+                                <strong>@listing.Price kr</strong> <br />
+                                Quantity: @listing.Quantity <br />
+                                Category: @listing.Category
+                            </p>
+                        </div>
+
+                        <!-- Action Buttons: Edit and View Details -->
+                        <div class="card-footer text-center">
+                            <button class="btn btn-warning me-2"
+                                    @onclick="() => EditListing(listing)"
+                                    disabled="@(listing.SellerId != SellerId)">
+                                Edit
+                            </button>
+                            <button class="btn btn-info"
+                                    @onclick="() => NavigateToDetailPage(listing.ListingID)">
+                                View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Pagination -->
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
+                <button class="page-link" @onclick="PreviousPage">Previous</button>
+            </li>
+            @for (int i = 1; i <= TotalPages; i++)
+            {
+                <li class="page-item @(CurrentPage == i ? "active" : "")">
+                    <button class="page-link" @onclick="(() => ChangePage(i))">@i</button>
+                </li>
+            }
+            <li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
+                <button class="page-link" @onclick="NextPage">Next</button>
+            </li>
+        </ul>
+    </nav>
+
+    <CreateListingModal @ref="CreateModal" OnSaved="ReloadListings" />
+    <EditListingModal @ref="EditModal" OnSaved="ReloadListings" />
+}
+
+@code {
+    private List<ListingDto> Listings = new();
+    private int CurrentPage = 1;
+    private int PageSize = 10; // Items per page
+    private int TotalPages = 1;
+
+    private CreateListingModal? CreateModal;
+    private EditListingModal? EditModal;
+    private ListingDto? SelectedListing;
+    private Dictionary<int, string> AuthorizedImageUrls = new();
+
+    /*private int? SellerId => TokenStorageService.GetCurrentUser()?.UserID ?? TokenStorageService._sellerId;
+    private bool IsLoggedIn => TokenStorageService.GetToken() != null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!IsLoggedIn)
+        {
+            NavigateToLogin();
+            return;
+        }
+
+        await LoadPage(CurrentPage);
+    }*/
+    
+    private int? SellerId { get; set; }
+    private bool IsLoggedIn { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Check if the user is logged in (based on the Token)
+            IsLoggedIn = await IsUserLoggedInAsync();
+
+            // Handle login status
+            if (!IsLoggedIn)
+            {
+                NavigateToLogin();
+                return;
+            }
+
+            SellerId = await GetSellerIdAsync();
+            // If the user is logged in, load the page
+            await LoadPage(CurrentPage);
+            StateHasChanged();
+        }
+    }
+    
+    private async Task<bool> IsUserLoggedInAsync()
+    {
+        // Using JSInterop after rendering to ensure proper timing
+        var token = await TokenStorageService.GetTokenAsync();
+        return token != null;
+    }
+
+    private async Task<int?> GetSellerIdAsync()
+    {
+        // Get the current user after the component has been rendered
+        var user = await TokenStorageService.GetCurrentUserAsync();
+        return user?.UserID ?? await TokenStorageService.GetCurrentSellerIdAsync();
+    }
+
+    private async Task LoadPage(int page)
+    {
+        try
+        {
+            if (IsLoggedIn && SellerId.HasValue)
+            {
+                // Fetch paginated data
+                var response = await ListingService.GetListingsByUserAsync(SellerId.Value, page, PageSize);
+                Listings = response.Items;
+                TotalPages = response.TotalPages;
+                CurrentPage = response.CurrentPage;
+
+                // Preload authorized image URLs
+                AuthorizedImageUrls.Clear();
+                foreach (var listing in Listings)
+                {
+                    if (!string.IsNullOrEmpty(listing.ImageUrl))
+                    {
+                        var fileUrl = $"{Configuration["ApiBaseUrl"]}api/listings/files/{Path.GetFileName(listing.ImageUrl)}";
+                        AuthorizedImageUrls[listing.ListingID] = await GetAuthorizedImageUrl(fileUrl);
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading listings: {ex.Message}");
+        }
+    }
+
+    private async Task<string> GetAuthorizedImageUrl(string fileUrl)
+    {
+        var token = await TokenStorageService.GetTokenAsync();
+        if (string.IsNullOrEmpty(token))
+        {
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
+
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        try
+        {
+            var imageBytes = await client.GetByteArrayAsync(fileUrl);
+            return $"data:image/jpeg;base64,{Convert.ToBase64String(imageBytes)}";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load image: {ex.Message}");
+            return string.Empty;
+        }
+    }
+
+    private async Task ReloadListings()
+    {
+        await LoadPage(CurrentPage);
+    }
+
+    private void ShowCreateListingModal()
+    {
+        CreateModal?.Show();
+    }
+
+    private void EditListing(ListingDto listing)
+    {
+        SelectedListing = listing;
+        if (SelectedListing != null && SelectedListing.SellerId == SellerId)
+        {
+            EditModal?.Show(SelectedListing);
+        }
+    }
+
+    private void NavigateToDetailPage(int listingId)
+    {
+        NavigationManager.NavigateTo($"/product-detail/{listingId}");
+    }
+
+    private void NavigateToLogin()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+
+    private async Task ChangePage(int page)
+    {
+        if (page != CurrentPage)
+        {
+            await LoadPage(page);
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (CurrentPage < TotalPages)
+        {
+            await LoadPage(CurrentPage + 1);
+        }
+    }
+
+    private async Task PreviousPage()
+    {
+        if (CurrentPage > 1)
+        {
+            await LoadPage(CurrentPage - 1);
+        }
+    }
+}

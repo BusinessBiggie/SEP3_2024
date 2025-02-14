@@ -1,0 +1,182 @@
+@using DTOs
+@using EcoUme.Services
+@inject IListingsService ListingService
+@inject TokenStorageService TokenStorageService
+@inject HttpClient Http
+
+<div class="modal" tabindex="-1" style="display:@(IsVisible ? "block" : "none")">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create Listing</h5>
+                <button type="button" class="btn-close" @onclick="Close"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="_newListing" OnValidSubmit="SaveListing">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="mb-3">
+                        <label for="ProductName">Product Name:</label>
+                        <InputText id="ProductName" class="form-control" @bind-Value="_newListing.ProductName" />
+                        <ValidationMessage For="@(() => _newListing.ProductName)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Price">Price:</label>
+                        <InputNumber id="Price" class="form-control" @bind-Value="_newListing.Price" />
+                        <ValidationMessage For="@(() => _newListing.Price)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Quantity">Quantity:</label>
+                        <InputNumber id="Quantity" class="form-control" @bind-Value="_newListing.Quantity" />
+                        <ValidationMessage For="@(() => _newListing.Quantity)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Category">Category:</label>
+                        <select id="Category" class="form-control" @bind="_newListing.Category">
+                            <option value="">Select Category</option>
+                            @foreach (var category in categories)
+                            {
+                                <option value="@category">@category</option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => _newListing.Category)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Condition">Condition:</label>
+                        <select id="Condition" class="form-control" @bind="_newListing.Condition">
+                            <option value="">Select Condition</option>
+                            @foreach (var condition in conditions)
+                            {
+                            <option value="@condition">@condition</option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => _newListing.Condition)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="Description">Description:</label>
+                        <InputTextArea id="Description" class="form-control" @bind-Value="_newListing.Description" />
+                        <ValidationMessage For="@(() => _newListing.Description)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="ImageFile">Image:</label>
+                        <InputFile id="ImageFile" OnChange="OnImageSelected" />
+                        <ValidationMessage For="@(() => _uploadedImage)" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="button" class="btn btn-secondary" @onclick="Close">Cancel</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool IsVisible { get; set; }
+    private CreateListingRequest _newListing = new();
+    private IBrowserFile? _uploadedImage;
+    private List<string> categories = new(); 
+    private List<string> conditions = new(); 
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+    public async Task Show()
+    {
+        var currentUser = await TokenStorageService.GetCurrentUserAsync();
+        if (currentUser == null)
+        {
+            Console.WriteLine("User is not logged in.");
+            return;
+        }
+
+        _newListing = new CreateListingRequest
+        {
+            SellerId = currentUser.UserID,
+            SellerName = currentUser.Username
+        };
+
+        // Fetch categories from the backend
+        await LoadCategoriesAndConditions();
+
+        IsVisible = true;
+        StateHasChanged();
+    }
+
+    private async Task LoadCategoriesAndConditions()
+    {
+        try
+        {
+            // Fetch categories from the API
+            var categoryResponse = await Http.GetFromJsonAsync<List<EnumResponseDTO>>("http://localhost:7202/api/listings/product-categories");
+
+            if (categoryResponse != null)
+            {
+                categories = categoryResponse.Select(c => c.Name).ToList();
+                Console.WriteLine($"Loaded categories: {string.Join(", ", categories)}");
+            }
+            else
+            {
+                Console.WriteLine("No categories found.");
+            }
+
+            // Fetch conditions from the API
+            var conditionResponse = await Http.GetFromJsonAsync<List<EnumResponseDTO>>("http://localhost:7202/api/listings/product-conditions");
+
+            if (conditionResponse != null)
+            {
+                conditions = conditionResponse.Select(c => c.Name).ToList();
+                Console.WriteLine($"Loaded categories: {string.Join(", ", categories)}");
+            }
+            else
+            {
+                Console.WriteLine("No categories found.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching categories and conditions: {ex.Message}");
+        }
+    }
+    
+    private void Close()
+    {
+        IsVisible = false;
+        StateHasChanged();
+    }
+
+    private async Task SaveListing()
+    {
+        Stream? fileStream = null;
+        string fileName = string.Empty;
+
+        if (_uploadedImage != null)
+        {
+            fileStream = _uploadedImage.OpenReadStream();
+            fileName = _uploadedImage.Name;
+        }
+
+        try
+        {
+            await ListingService.CreateListingWithFileAsync(_newListing, fileStream, fileName);
+
+            Console.WriteLine("Listing created successfully.");
+            IsVisible = false;
+
+            if (OnSaved.HasDelegate)
+            {
+                await OnSaved.InvokeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating listing: {ex.Message}");
+        }
+    }
+
+    private Task OnImageSelected(InputFileChangeEventArgs e)
+    {
+        _uploadedImage = e.File;
+        Console.WriteLine($"Image selected: {_uploadedImage?.Name}");
+        return Task.CompletedTask;
+    }
+}

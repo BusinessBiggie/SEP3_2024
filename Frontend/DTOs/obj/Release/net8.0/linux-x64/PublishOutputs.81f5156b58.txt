@@ -1,0 +1,3 @@
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\publish\DTOs.dll
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\publish\DTOs.deps.json
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\publish\DTOs.pdb

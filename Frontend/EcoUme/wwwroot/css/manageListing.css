@@ -1,0 +1,82 @@
+.card-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.card-img-top {
+    border-bottom: 1px solid #ddd;
+}
+
+.card {
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 100%; /* Ensures consistent card height */
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.card.selected {
+    border: 2px solid #007bff !important;
+}
+
+/* Responsive adjustments */
+.card img {
+    object-fit: cover;
+    max-height: 150px; /* Ensures consistent image height */
+    width: 100%; /* Full width for responsiveness */
+}
+
+/* Adjust grid gap for responsiveness */
+.row {
+    row-gap: 1.5rem; /* Adds vertical spacing between rows */
+}
+
+/* Align buttons properly */
+.button-container {
+    display: flex; /* Use flexbox for alignment */
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    gap: 0.5rem; /* Add consistent spacing between buttons */
+    justify-content: flex-start; /* Align buttons to the left by default */
+    margin-bottom: 1.5rem; /* Add space below the buttons */
+}
+
+.button-container button {
+    flex: 0 1 auto; /* Prevent buttons from stretching unevenly */
+    max-width: 150px; /* Set a maximum width for buttons */
+}
+
+
+/* For small screens (mobile) */
+@media (max-width: 576px) {
+    .card-title {
+        font-size: 1rem; /* Smaller font size on mobile */
+    }
+
+    .button-container {
+        flex-direction: column; /* Stack buttons vertically on mobile */
+        justify-content: center; /* Center buttons horizontally */
+        align-items: center; /* Center buttons vertically */
+    }
+
+    .button-container button {
+        width: 100%; /* Make buttons full-width */
+        max-width: none; /* Remove the max-width restriction for stacking */
+    }
+
+
+}
+
+/* For medium screens (tablets) */
+@media (min-width: 577px) and (max-width: 768px) {
+    .card-title {
+        font-size: 1.1rem; /* Slightly larger font size for tablets */
+    }
+
+    .button-container {
+        justify-content: flex-start; /* Align buttons to the left */
+    }
+
+}

@@ -1,0 +1,90 @@
+/* Chat Section */
+.chat-section {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #ffffff;
+}
+
+/* Chat Header */
+.chat-header {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Chat Messages */
+.chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    overflow-y: auto;
+}
+
+/* Chat Bubbles */
+.chat-bubble {
+    padding: 10px 15px;
+    border-radius: 20px;
+    max-width: 60%;
+    word-wrap: break-word;
+    position: relative;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Receiver's Bubble (aligned to the left) */
+.text-start .chat-bubble {
+    background-color: #e0e0e0;
+    color: #333;
+    align-self: flex-start; /* Bubble is aligned to the left */
+    margin-right: auto; /* Pushes the bubble to the left */
+    text-align: left;
+}
+
+/* Sender's Bubble (aligned to the right) */
+.text-end .chat-bubble {
+    background-color: #d7a2a2;
+    color: white;
+    align-self: flex-end; /* Bubble is aligned to the right */
+    margin-left: auto; /* Pushes the bubble to the right */
+    text-align: right;
+}
+
+/* Chat Input Section */
+.chat-input {
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background-color: #ffffff;
+}
+
+.chat-input input {
+    flex-grow: 1;
+    border-radius: 20px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+}
+
+.chat-input button {
+    padding: 10px 20px;
+    border-radius: 20px;
+    background-color: #d7a2a2;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.chat-input button:hover {
+    background-color: #c48989;
+}

@@ -1,0 +1,135 @@
+﻿@using DTOs
+@using EcoUme.Services
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject TokenStorageService TokenStorageService
+@inject NavigationManager NavigationManager
+@inject IChatService ChatService
+
+<div class="nav-container">
+    <!-- Logo -->
+    <a href="/" class="navbar-logo">
+        <img src="Logo.png" alt="EcoUme Logo" />
+    </a>
+
+    <!-- Navigation Links (Always Visible in Full Navbar) -->
+    <nav class="nav-links-desktop">
+        <a class="nav-link" href="/">Browse</a>
+        <a class="nav-link" href="/listings/manage">Create</a>
+    </nav>
+
+    <!-- Icons (Notification Bell & Chat) and Hamburger Menu -->
+    <div class="right-navbar">
+        <div class="icons-container">
+            <!-- Notification Bell -->
+            <button class="icon-button notification-bell">
+                <i class="fa-regular fa-bell"></i>
+                @if (UnreadNotificationCount > 0)
+                {
+                <span class="badge">@UnreadNotificationCount</span>
+                }
+            </button>
+
+            <!-- Chat Icon -->
+            <NavLink class="icon-button chat-inbox" href="@($"/chat/{CurrentUser?.UserID}")">
+                <i class="fa-regular fa-envelope"></i>
+            </NavLink>
+        </div>
+
+        <!-- Hamburger Menu -->
+        <button id="hamburger-menu" class="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </div>
+
+    <!-- Authentication Buttons (Always Visible in Full Navbar) -->
+    <div class="auth-buttons-desktop">
+        @if (isLoggedIn)
+        {
+            <button class="btn logout" @onclick="Logout">Logout</button>
+        }
+        else
+        {
+            <NavLink class="btn sign-up" href="/register">Sign up</NavLink>
+            <NavLink class="btn sign-in" href="/login">Sign in</NavLink>
+        }
+    </div>
+
+    <!-- Navigation Links and Actions -->
+    <div id="nav-actions" class="nav-actions">
+        <!-- Close Button -->
+        <button class="close-hamburger">×</button>
+
+        <!-- Links -->
+        <nav class="nav-links">
+            <a class="nav-link" href="/">Browse</a>
+            <a class="nav-link" href="/listings/manage">Create</a>
+        </nav>
+
+        <!-- Authentication Buttons -->
+        <div class="auth-buttons">
+            @if (isLoggedIn)
+            {
+                <button class="btn logout" @onclick="Logout">Logout</button>
+            }
+            else
+            {
+                <NavLink class="btn sign-up" href="/register">Sign up</NavLink>
+                <NavLink class="btn sign-in" href="/login">Sign in</NavLink>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isLoggedIn;
+
+    private int UnreadNotificationCount { get; set; } = 0;
+    private LoginResponseDTO? CurrentUser { get; set; }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Notify JavaScript that the DOM is rendered
+            await JSRuntime.InvokeVoidAsync("initializeHamburgerMenu");
+
+            // Check login status
+            var token = await TokenStorageService.GetTokenAsync();
+            isLoggedIn = !string.IsNullOrEmpty(token);
+            StateHasChanged(); // Update the UI
+
+            // Fetch current user after the first render
+            CurrentUser = await TokenStorageService.GetCurrentUserAsync();
+
+            if (CurrentUser != null)
+            {
+                Console.WriteLine($"Current user ID: {CurrentUser.UserID}");
+                UnreadNotificationCount = await ChatService.GetUnreadMessagesCount(CurrentUser.UserID.ToString());
+                Console.WriteLine($"Unread notification count: {UnreadNotificationCount}");
+            }
+            else
+            {
+                Console.WriteLine("No user logged in.");
+            }
+            StateHasChanged();
+        }
+    }
+    
+    
+    private async Task Logout()
+    {
+        // Clear the token
+        await TokenStorageService.ClearTokenAsync();
+
+        // Redirect to the homepage
+        NavigationManager.NavigateTo("/", true);
+
+        // Update UI state
+        isLoggedIn = false;
+        StateHasChanged();
+    }
+
+}

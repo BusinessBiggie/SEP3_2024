@@ -1,0 +1,72 @@
+@page "/login"
+@using DTOs
+@using EcoUme.Components.Layout
+@using EcoUme.Services
+@layout NoNavbar
+@inject IUsersService UsersService
+@inject NavigationManager Navigation
+@inject TokenStorageService TokenStorageService
+
+<!-- Link to the shared CSS file -->
+<link href="css/loginRegi.css" rel="stylesheet" />
+
+<div class="registration-container">
+    <div class="form-header">
+        <img src="images/full plum color.webp" alt="EcoUme Logo" class="logo" />
+        <h1>Login</h1>
+    </div>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <p class="message">@message</p>
+    }
+
+    <EditForm Model="loginModel" OnValidSubmit="HandleLogin" class="registration-form">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="username">Email:</label>
+            <InputText id="username" @bind-Value="loginModel.Email" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <InputText id="password" @bind-Value="loginModel.Password" type="password" class="form-control" />
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-submit">Login</button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private LoginUserDTO loginModel = new LoginUserDTO();
+    private string message = string.Empty;
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            var result = await UsersService.LoginAsync(loginModel);
+            if (result != null && !string.IsNullOrEmpty(result.Token))
+            {
+                await TokenStorageService.SaveTokenAsync(result.Token);
+                Console.WriteLine($"Token: {result.Token}");
+                
+                await TokenStorageService.SaveCurrentUserAsync(result);
+                message = $"Welcome, {result.Username}!";
+                Navigation.NavigateTo("/"); // Redirect to the homepage or dashboard
+            }
+            else
+            {
+                message = "Invalid username or password. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"An error occurred: {ex.Message}";
+        }
+    }
+}

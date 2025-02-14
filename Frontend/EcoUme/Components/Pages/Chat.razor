@@ -1,0 +1,218 @@
+﻿@page "/chat/{SellerId:int}"  
+@using DTOs
+@using EcoUme.Services
+@inject NavigationManager Navigation
+@inject TokenStorageService TokenStorageService
+@inject SignalRService SignalRService
+@inject IChatService ChatService
+@inject IUsersService UserService
+@inject IJSRuntime JSRuntime
+
+<link href="css/chat.css" rel="stylesheet" />
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Inbox Section -->
+        <div class="col-md-3 border-end inbox-section">
+            <h5 class="mt-3">Inbox</h5>
+            <ul class="list-group">
+                @if (_inboxUsers.Any())
+                {
+                    @foreach (var user in _inboxUsers)
+                    {
+                        <li class="list-group-item pointer" @onclick="(() => LoadChat(user))">
+                            <strong>@user.Username</strong>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="list-group-item">No users available</li>
+                }
+            </ul>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="col-md-9 chat-section">
+            @if (_currentChatUser == null)
+            {
+                <div class="alert alert-danger">
+                    <strong>Error:</strong> No recipient selected. Please select a user to chat with.
+                </div>
+            }
+            else
+            {
+                <div class="chat-header">
+                    <h5 class="mt-3">Chat with: @_currentChatUser?.Username</h5>
+                </div>
+
+                <div class="chat-messages" id="chatMessagesContainer">
+                    @if (_chatMessages.Any())
+                    {
+                        @foreach (var message in _chatMessages)
+                        {
+                            <div class="@GetMessageClass(message)">
+                                <div class="chat-bubble">
+                                    @message.Content
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="no-chat-history">
+                            <p>No messages yet. Start the conversation!</p>
+                        </div>
+                    }
+                </div>
+
+                <div class="chat-input">
+                    <input type="text" class="form-control" @bind="_newMessage" placeholder="Enter your text here" @onkeydown="HandleEnterKey" />
+                    <button class="btn btn-primary mt-2" @onclick="SendMessage">Send</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int SellerId { get; set; }  
+
+    private LoginResponseDTO? _currentUser;
+    private UserDTO? _currentChatUser;
+    private List<UserDTO> _inboxUsers = new();
+    private List<MessageDto> _chatMessages = new();
+    private List<int> _chatHistoryUsers = [];
+    private string _newMessage = "";
+    
+
+    //protected override async Task OnParametersSetAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Ensure the current user is authenticated
+            _currentUser = await TokenStorageService.GetCurrentUserAsync();
+
+            if (_currentUser == null)
+            {
+                Navigation.NavigateTo("/login");
+                return;
+            }
+
+            await SignalRService.StartConnection();
+            SignalRService.OnMessageReceived((sender, receiver, message) =>
+            {
+                _ = InvokeAsync(() =>
+                {
+                    if ((_currentChatUser != null && (receiver == _currentChatUser.UserID.ToString() || sender == _currentChatUser.UserID.ToString())) ||
+                        receiver == _currentUser.UserID.ToString())
+                    {
+                        _chatMessages.Add(new MessageDto
+                        {
+                            SenderId = sender,
+                            ReceiverId = receiver,
+                            Content = message,
+                            Timestamp = DateTime.Now
+                        });
+
+                        StateHasChanged();
+                        ScrollToBottom();
+                    }
+                    return Task.CompletedTask;
+                });
+            });
+            // Fetch the seller's user details using SellerId
+            var seller = await UserService.GetUserByIdAsync(SellerId);
+
+            if (seller != null)
+            {
+                _currentChatUser = seller;
+
+                // Fetch chat history or create a new session if no history exists
+                _chatMessages = await ChatService.GetChatHistory(
+                    _currentUser.UserID.ToString(),
+                    SellerId.ToString()
+                );
+
+                _chatHistoryUsers = await ChatService.GetChatHistoryUserIds(
+                    _currentUser.UserID.ToString()
+                );
+
+                _inboxUsers = await UserService.GetAllUsersByListOfIdsAsync(_chatHistoryUsers);
+
+                if (_chatMessages == null || !_chatMessages.Any())
+                {
+                    _chatMessages = new List<MessageDto>();
+                    Console.WriteLine("No chat history found. Starting a new chat session.");
+                }
+
+                StateHasChanged();
+            }
+            else
+            {
+                Console.WriteLine($"Seller with ID {SellerId} not found.");
+            }
+        }
+    }
+
+    private async Task LoadChat(UserDTO user)
+    {
+        _currentChatUser = user;
+
+        if (_currentChatUser != null)
+        {
+            _chatMessages = await ChatService.GetChatHistory(
+                _currentUser?.UserID.ToString(),
+                _currentChatUser.UserID.ToString()
+            );
+
+            await ScrollToBottom();
+            StateHasChanged();
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (!string.IsNullOrEmpty(_newMessage) && _currentUser != null && _currentChatUser != null)
+        {
+            var message = new MessageDto
+            {
+                SenderId = _currentUser.UserID.ToString(),
+                ReceiverId = _currentChatUser.UserID.ToString(),
+                Content = _newMessage,
+                Timestamp = DateTime.Now
+            };
+
+            _chatMessages.Add(message);
+            await ScrollToBottom();
+
+            await SignalRService.SendMessage(
+                _currentUser.UserID.ToString(),
+                _currentChatUser.UserID.ToString(),
+                _newMessage
+            );
+
+            _newMessage = "";
+        }
+    }
+
+    private void HandleEnterKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            _ = SendMessage();
+        }
+    }
+
+    private string GetMessageClass(MessageDto message)
+    {
+        return message.SenderId == _currentUser?.UserID.ToString() ? "text-end" : "text-start";
+    }
+
+    private async Task ScrollToBottom()
+    {
+        await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('chatMessagesContainer').scrollTop = document.getElementById('chatMessagesContainer').scrollHeight");
+    }
+}

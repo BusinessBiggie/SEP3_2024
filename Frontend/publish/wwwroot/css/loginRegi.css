@@ -1,0 +1,95 @@
+.registration-container {
+    max-width: 600px;          /* Set a maximum width for the form */
+    margin: 0 auto;            /* Horizontally center */
+    padding: 20px;             /* Padding inside the form */
+    border: 1px solid #ddd;    /* Optional: Border for the form */
+    border-radius: 8px;        /* Rounded corners */
+    background: #fff;          /* Background color */
+    font-family: Arial, sans-serif;
+    display: flex;             /* Flexbox for alignment */
+    flex-direction: column;    /* Stack the form content vertically */
+    align-items: center;       /* Center horizontally */
+    justify-content: center;   /* Center vertically */
+    height: 100vh;             /* Set the container to take full screen height */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for styling */
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 100px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+p {
+    color: #666;
+    font-size: 14px;
+}
+
+.message {
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.success {
+    color: green;
+}
+
+.error {
+    color: red;
+}
+
+.registration-form .form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.registration-form .form-group {
+    flex: 1;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.btn-submit {
+    display: block;              /* Makes the button behave like a block element */
+    width: 25%;                  /* Sets the width to 25% of the container */
+    margin: 20px auto;           /* Centers the button horizontally */
+    padding: 10px 0;             /* Adds vertical padding to ensure the text fits */
+    background-color: #9e9e9e;   /* Blue background */
+    color: #fff;                 /* White text */
+    border: none;                /* Removes border */
+    border-radius: 4px;          /* Adds rounded corners */
+    font-size: 16px;             /* Sets a readable font size */
+    text-align: center;          /* Centers text inside the button */
+    cursor: pointer;             /* Adds pointer cursor on hover */
+    line-height: normal;         /* Ensures proper line height for the text */
+}
+
+.btn-submit:hover {
+    background-color: #cc9ea0;
+}

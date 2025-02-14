@@ -1,0 +1,77 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\obj\\Release\\net8.0\\linux-x64\\scopedcss\\projectbundle\\EcoUme.bundle.scp.css",
+      "PackagePath": "staticwebassets\\EcoUme.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\Logo.png",
+      "PackagePath": "staticwebassets\\Logo.png"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\app.css",
+      "PackagePath": "staticwebassets\\app.css"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\css\\ProductDetailPage.css",
+      "PackagePath": "staticwebassets\\css\\ProductDetailPage.css"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\css\\chat.css",
+      "PackagePath": "staticwebassets\\css\\chat.css"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\css\\loginRegi.css",
+      "PackagePath": "staticwebassets\\css\\loginRegi.css"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\css\\manageListing.css",
+      "PackagePath": "staticwebassets\\css\\manageListing.css"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\css\\navMenu.css",
+      "PackagePath": "staticwebassets\\css\\navMenu.css"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\css\\search.css",
+      "PackagePath": "staticwebassets\\css\\search.css"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\images\\full plum color.webp",
+      "PackagePath": "staticwebassets\\images\\full plum color.webp"
+    },
+    {
+      "Id": "C:\\Users\\Anna\\RiderProjects\\SEP3BlazorGitissues\\EcoUme\\EcoUme\\wwwroot\\js\\hamburger.js",
+      "PackagePath": "staticwebassets\\js\\hamburger.js"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\linux-x64\\staticwebassets\\msbuild.EcoUme.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\linux-x64\\staticwebassets\\msbuild.build.EcoUme.props",
+      "PackagePath": "build\\EcoUme.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\linux-x64\\staticwebassets\\msbuild.buildMultiTargeting.EcoUme.props",
+      "PackagePath": "buildMultiTargeting\\EcoUme.props"
+    },
+    {
+      "Id": "obj\\Release\\net8.0\\linux-x64\\staticwebassets\\msbuild.buildTransitive.EcoUme.props",
+      "PackagePath": "buildTransitive\\EcoUme.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

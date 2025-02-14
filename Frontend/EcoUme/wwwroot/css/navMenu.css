@@ -1,0 +1,300 @@
+/* General Reset */
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    height: 100%;
+}
+
+/* Navbar Styling */
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #d7a2a2;
+    color: white;
+    padding: 10px 20px;
+    flex-wrap: wrap; /* Allows wrapping for smaller screens */
+}
+
+/* Logo */
+.navbar-logo img {
+    height: 40px;
+    max-height: 40px;
+    width: auto;
+    display: inline-block;
+}
+
+/* Icons Container */
+
+.icons-container {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Ensures spacing between bell and envelope icons */
+    margin-right: 15px;
+}
+
+
+.icon-button {
+    position: relative;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: white;
+    transition: color 0.3s ease;
+}
+
+.icon-button:hover {
+    color: #f1c7c7;
+}
+
+.icon-button .badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 4px 7px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Right Navbar (Icons + Hamburger) */
+.right-navbar {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Ensures spacing between auth-buttons and icons */
+}
+
+/* Desktop Navigation Links */
+.nav-links-desktop {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-left: auto;
+}
+
+.nav-links-desktop .nav-link {
+    text-decoration: none;
+    color: #100d0d;
+    font-size: 1rem;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-links-desktop .nav-link:hover {
+    background-color: #f1c7c7;
+    color: #333;
+}
+
+/* Desktop Authentication Buttons */
+.auth-buttons-desktop {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adds spacing between Sign Up/Sign In buttons */
+}
+
+.auth-buttons-desktop .btn {
+    background-color: white;
+    color: #090707;
+    border: 1px solid #d7a2a2;
+    padding: 5px 15px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.auth-buttons-desktop .btn:hover {
+    background-color: #f1c7c7;
+    color: white;
+    border-color: #f1c7c7;
+}
+
+/* Hamburger Menu */
+.hamburger-menu {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.hamburger-menu span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #090707;
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.hamburger-menu.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger-menu.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Hamburger Menu Content */
+.nav-actions {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    z-index: 1000;
+    overflow-y: auto;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    animation: slide-in 0.3s ease;
+}
+
+.nav-actions.active {
+    display: flex;
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+.close-hamburger {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+}
+
+/* Links in Hamburger Menu */
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.nav-links .nav-link {
+    font-size: 1.2rem;
+    color: black;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-links .nav-link:hover {
+    background-color: #f1c7c7;
+    color: #333;
+}
+
+/* Authentication Buttons in Hamburger */
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.auth-buttons .btn {
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+    background-color: #d7a2a2;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.auth-buttons .btn:hover {
+    background-color: #f1c7c7;
+    color: #333;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .hamburger-menu {
+        display: flex;
+    }
+
+    .nav-links-desktop,
+    .auth-buttons-desktop {
+        display: none;
+    }
+
+    .nav-actions {
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        background-color: white;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        z-index: 1000;
+    }
+
+    .nav-actions.active {
+        display: flex;
+    }
+
+    .icons-container {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .navbar-logo img {
+        height: 30px;
+    }
+
+    .nav-links .nav-link {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    .auth-buttons .btn {
+        font-size: 0.8rem;
+    }
+
+    .icons-container .icon-button {
+        font-size: 20px;
+    }
+}

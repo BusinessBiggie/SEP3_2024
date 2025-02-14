@@ -1,0 +1,12 @@
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\bin\Release\net8.0\linux-x64\DTOs.deps.json
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\bin\Release\net8.0\linux-x64\DTOs.dll
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\bin\Release\net8.0\linux-x64\DTOs.pdb
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\obj\Release\net8.0\linux-x64\DTOs.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\obj\Release\net8.0\linux-x64\DTOs.AssemblyInfoInputs.cache
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\obj\Release\net8.0\linux-x64\DTOs.AssemblyInfo.cs
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\obj\Release\net8.0\linux-x64\DTOs.csproj.CoreCompileInputs.cache
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\obj\Release\net8.0\linux-x64\DTOs.sourcelink.json
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\obj\Release\net8.0\linux-x64\DTOs.dll
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\obj\Release\net8.0\linux-x64\refint\DTOs.dll
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\obj\Release\net8.0\linux-x64\DTOs.pdb
+C:\Users\Anna\RiderProjects\SEP3BlazorGitissues\EcoUme\DTOs\obj\Release\net8.0\linux-x64\ref\DTOs.dll
