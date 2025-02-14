@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+option csharp_namespace = "UserMicroservice.GrpcServices";
+
+package UsergRPCService;
+
+// Besked til at oprette en ny bruger
+message CreateUserRequest {
+  string username = 1;
+  string password = 2;
+  string firstname = 3;
+  string lastname = 4;
+  string email = 5;
+}
+
+// Besked til at hente en bruger baseret på ID
+message UserByIdRequest {
+  string id = 1;
+}
+
+// Besked til at hente en bruger baseret på email
+message UserByEmailRequest {
+  string email = 1;
+}
+
+// Besked til at opdatere en bruger
+message UpdateUserRequest {
+  string id = 1;
+  string username = 2;
+  string password = 3;
+  string firstname = 4;
+  string lastname = 5;
+  string email = 6;
+}
+
+// Besked til at slette en bruger baseret på ID
+message DeleteUserRequest {
+  string id = 1;
+}
+
+// Svarbesked der returnerer brugeroplysninger
+message UserReply {
+  string id = 1;
+  string username = 2;
+  string firstname = 3;
+  string lastname = 4;
+  string email = 5;
+}
+
+// Svarbesked for succesfuld sletning
+message DeleteReply {
+  string message = 1;
+}
+
+// Definér gRPC tjenesten
+service UsergRPCService {
+  // Opret en bruger
+  rpc CreateUser (CreateUserRequest) returns (UserReply);
+
+  // Hent en bruger baseret på ID
+  rpc GetUserById (UserByIdRequest) returns (UserReply);
+
+  // Hent en bruger baseret på email
+  rpc GetUserByEmail (UserByEmailRequest) returns (UserReply); // Ny metode til at hente en bruger via email
+
+  // Opdater en bruger
+  rpc UpdateUser (UpdateUserRequest) returns (UserReply);
+
+  // Slet en bruger baseret på ID
+  rpc DeleteUser (DeleteUserRequest) returns (DeleteReply);
+}
